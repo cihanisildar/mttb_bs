@@ -6,15 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  FiArrowRight,
-  FiAward,
-  FiBell,
-  FiCalendar,
-  FiPlus,
-  FiTrendingUp,
-  FiUsers,
-} from "react-icons/fi";
+import toast from 'react-hot-toast';
+import { AlertCircle, Award, Bell, Clock, Plus, Search, TrendingUp, ArrowRight, Users } from 'lucide-react';
 
 interface TutorStats {
   totalStudents: number;
@@ -123,7 +116,7 @@ function QuickActions() {
             className="flex items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100 hover:shadow-md transition-all group"
           >
             <div className="p-2 rounded-lg bg-green-100 text-green-600 group-hover:bg-green-200 transition-colors">
-              <FiAward size={20} />
+              <Award size={20} />
             </div>
             <div className="ml-4">
               <span className="font-medium text-green-700">
@@ -140,7 +133,7 @@ function QuickActions() {
             className="flex items-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100 hover:shadow-md transition-all group"
           >
             <div className="p-2 rounded-lg bg-blue-100 text-blue-600 group-hover:bg-blue-200 transition-colors">
-              <FiPlus size={20} />
+              <Search size={20} />
             </div>
             <div className="ml-4">
               <span className="font-medium text-blue-700">
@@ -157,7 +150,7 @@ function QuickActions() {
             className="flex items-center p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md transition-all group"
           >
             <div className="p-2 rounded-lg bg-purple-100 text-purple-600 group-hover:bg-purple-200 transition-colors">
-              <FiTrendingUp size={20} />
+              <TrendingUp size={20} />
             </div>
             <div className="ml-4">
               <span className="font-medium text-purple-700">
@@ -263,10 +256,10 @@ function DashboardStats() {
                   i === 2 ? "bg-green-50" :
                   "bg-amber-50"
                 }`}>
-                  {i === 0 ? <FiUsers className="text-gray-400" size={24} /> :
-                   i === 1 ? <FiCalendar className="text-gray-400" size={24} /> :
-                   i === 2 ? <FiAward className="text-gray-400" size={24} /> :
-                   <FiBell className="text-gray-400" size={24} />}
+                  {i === 0 ? <Users className="text-gray-400" size={24} /> :
+                   i === 1 ? <Clock className="text-gray-400" size={24} /> :
+                   i === 2 ? <Award className="text-gray-400" size={24} /> :
+                   <Bell className="text-gray-400" size={24} />}
                 </div>
                 <div className="ml-5">
                   <Skeleton className="h-4 w-24 mb-2" />
@@ -290,7 +283,7 @@ function DashboardStats() {
         <CardContent className="p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-indigo-50 text-indigo-600">
-                <FiUsers size={24} />
+                <Users size={24} />
               </div>
               <div className="ml-5">
                 <p className="text-sm font-medium text-gray-500">
@@ -308,7 +301,7 @@ function DashboardStats() {
                 href="/tutor/students"
                 className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
               >
-                Öğrencileri Görüntüle <FiArrowRight className="ml-1" />
+                Öğrencileri Görüntüle <ArrowRight className="ml-1" />
               </Link>
             </div>
         </CardContent>
@@ -319,7 +312,7 @@ function DashboardStats() {
         <CardContent className="p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-blue-50 text-blue-600">
-                <FiCalendar size={24} />
+                <Clock size={24} />
               </div>
               <div className="ml-5">
                 <p className="text-sm font-medium text-gray-500">Etkinlikler</p>
@@ -335,7 +328,7 @@ function DashboardStats() {
                 href="/tutor/events"
                 className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
               >
-                Etkinlikleri Yönet <FiArrowRight className="ml-1" />
+                Etkinlikleri Yönet <ArrowRight className="ml-1" />
               </Link>
             </div>
         </CardContent>
@@ -346,7 +339,7 @@ function DashboardStats() {
         <CardContent className="p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-green-50 text-green-600">
-                <FiAward size={24} />
+                <Award size={24} />
               </div>
               <div className="ml-5">
                 <p className="text-sm font-medium text-gray-500">
@@ -364,7 +357,7 @@ function DashboardStats() {
                 href="/tutor/points"
                 className="inline-flex items-center text-sm font-medium text-green-600 hover:text-green-800 transition-colors"
               >
-                Puan Ver <FiArrowRight className="ml-1" />
+                Puan Ver <ArrowRight className="ml-1" />
               </Link>
             </div>
         </CardContent>
@@ -383,7 +376,7 @@ function DashboardStats() {
                     : "bg-gray-50 text-gray-600"
                 }`}
               >
-                <FiBell size={24} />
+                <Bell size={24} />
               </div>
               <div className="ml-5">
                 <p className="text-sm font-medium text-gray-500">
@@ -416,7 +409,7 @@ function DashboardStats() {
                     : "text-gray-600 hover:text-gray-800"
                 } transition-colors`}
               >
-                İstekleri Görüntüle <FiArrowRight className="ml-1" />
+                İstekleri Görüntüle <ArrowRight className="ml-1" />
               </Link>
             </div>
         </CardContent>
@@ -469,7 +462,7 @@ function RecentTransactions() {
               href="/tutor/points/history"
               className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center"
             >
-              Tümünü Görüntüle <FiArrowRight className="ml-1" size={14} />
+              Tümünü Görüntüle <ArrowRight className="ml-1" size={14} />
             </Link>
           </div>
 
@@ -512,7 +505,7 @@ function RecentTransactions() {
           ) : (
             <div className="bg-gray-50 rounded-lg p-8 text-center">
               <div className="inline-block p-3 bg-gray-100 rounded-full mb-4">
-                <FiAward className="text-gray-400" size={24} />
+                <Award className="text-gray-400" size={24} />
               </div>
               <p className="text-gray-600 mb-2">Henüz işlem yok</p>
               <p className="text-sm text-gray-500">

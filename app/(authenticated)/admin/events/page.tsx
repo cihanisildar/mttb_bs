@@ -615,7 +615,7 @@ export default function AdminEventsPage() {
                           <SelectValue placeholder="Etkinlik türü seçin" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="online">Online</SelectItem>
+                        <SelectItem value="online">Online</SelectItem>
                           <SelectItem value="in-person">Yüz yüze</SelectItem>
                         </SelectContent>
                       </Select>
@@ -658,7 +658,7 @@ export default function AdminEventsPage() {
                       </SelectContent>
                     </Select>
                   </div>
-
+  
                   <div>
                     <label className="text-sm font-medium">Etiketler</label>
                     <Textarea

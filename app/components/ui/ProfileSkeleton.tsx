@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { FiUser, FiMail, FiPhone, FiEdit2, FiBookOpen, FiLayers, FiAward } from "react-icons/fi";
+import { User, Mail, Phone, Edit2, BookOpen, Layers, Award } from "lucide-react";
 
 export function ProfileSkeleton() {
   return (
@@ -23,7 +23,7 @@ export function ProfileSkeleton() {
               <Skeleton className="h-4 w-24 mx-auto mb-6" />
               
               <div className="inline-flex items-center justify-center px-4 py-2 border border-indigo-300 rounded-md bg-white">
-                <FiEdit2 className="mr-2 h-4 w-4 text-indigo-700" />
+                <Edit2 className="mr-2 h-4 w-4 text-indigo-700" />
                 <Skeleton className="h-4 w-24" />
               </div>
             </div>
@@ -35,15 +35,15 @@ export function ProfileSkeleton() {
               </h2>
               <ul className="space-y-3">
                 <li className="flex items-center">
-                  <FiMail className="h-5 w-5 text-gray-400 mr-3" />
+                  <Mail className="h-5 w-5 text-gray-400 mr-3" />
                   <Skeleton className="h-4 w-40" />
                 </li>
                 <li className="flex items-center">
-                  <FiPhone className="h-5 w-5 text-gray-400 mr-3" />
+                  <Phone className="h-5 w-5 text-gray-400 mr-3" />
                   <Skeleton className="h-4 w-32" />
                 </li>
                 <li className="flex items-center">
-                  <FiUser className="h-5 w-5 text-gray-400 mr-3" />
+                  <User className="h-5 w-5 text-gray-400 mr-3" />
                   <Skeleton className="h-4 w-28" />
                 </li>
               </ul>
@@ -83,10 +83,10 @@ export function ProfileSkeleton() {
             <div className="border-b border-gray-100">
               <nav className="flex -mb-px">
                 {[
-                  { icon: FiUser, label: "Hakkımda" },
-                  { icon: FiBookOpen, label: "Dersler" },
-                  { icon: FiLayers, label: "Eğitim" },
-                  { icon: FiAward, label: "Sertifikalar" }
+                  { icon: User, label: "Hakkımda" },
+                  { icon: BookOpen, label: "Dersler" },
+                  { icon: Layers, label: "Eğitim" },
+                  { icon: Award, label: "Sertifikalar" }
                 ].map((tab, index) => (
                   <div
                     key={index}

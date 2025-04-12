@@ -9,7 +9,8 @@ import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FiAward, FiBookOpen, FiCheckCircle, FiEdit2, FiLayers, FiMail, FiPhone, FiUser } from "react-icons/fi";
+import toast from 'react-hot-toast';
+import { Award, BookOpen, CheckCircle, Edit2, Layers, Mail, Phone, User } from 'lucide-react';
 
 type TutorProfile = {
   id: string;
@@ -315,7 +316,7 @@ function ProfileContent() {
               href="/tutor/settings"
               className="mt-6 inline-flex items-center justify-center px-4 py-2 border border-indigo-300 text-sm font-medium rounded-md text-indigo-700 bg-white hover:bg-indigo-50 transition-colors"
             >
-              <FiEdit2 className="mr-2 h-4 w-4" />
+              <Edit2 className="mr-2 h-4 w-4" />
               Profili Düzenle
             </Link>
           </div>
@@ -327,17 +328,17 @@ function ProfileContent() {
             </h2>
             <ul className="space-y-3">
               <li className="flex items-center text-gray-600">
-                <FiMail className="h-5 w-5 text-gray-400 mr-3" />
+                <Mail className="h-5 w-5 text-gray-400 mr-3" />
                 <span>{profile.email}</span>
               </li>
               {profile.phone && (
                 <li className="flex items-center text-gray-600">
-                  <FiPhone className="h-5 w-5 text-gray-400 mr-3" />
+                  <Phone className="h-5 w-5 text-gray-400 mr-3" />
                   <span>{profile.phone}</span>
                 </li>
               )}
               <li className="flex items-center text-gray-600">
-                <FiUser className="h-5 w-5 text-gray-400 mr-3" />
+                <User className="h-5 w-5 text-gray-400 mr-3" />
                 <span>{profile.username}</span>
               </li>
             </ul>
@@ -384,7 +385,7 @@ function ProfileContent() {
                     : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300"
                 }`}
               >
-                <FiUser className={`mr-2 h-5 w-5 ${activeTab === "about" ? "text-indigo-500" : "text-gray-400"}`} />
+                <User className={`mr-2 h-5 w-5 ${activeTab === "about" ? "text-indigo-500" : "text-gray-400"}`} />
                 Hakkımda
               </button>
               <button
@@ -395,7 +396,7 @@ function ProfileContent() {
                     : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300"
                 }`}
               >
-                <FiBookOpen className={`mr-2 h-5 w-5 ${activeTab === "subjects" ? "text-indigo-500" : "text-gray-400"}`} />
+                <BookOpen className={`mr-2 h-5 w-5 ${activeTab === "subjects" ? "text-indigo-500" : "text-gray-400"}`} />
                 Dersler
               </button>
               <button
@@ -406,7 +407,7 @@ function ProfileContent() {
                     : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300"
                 }`}
               >
-                <FiLayers className={`mr-2 h-5 w-5 ${activeTab === "education" ? "text-indigo-500" : "text-gray-400"}`} />
+                <Layers className={`mr-2 h-5 w-5 ${activeTab === "education" ? "text-indigo-500" : "text-gray-400"}`} />
                 Eğitim
               </button>
               <button
@@ -417,7 +418,7 @@ function ProfileContent() {
                     : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300"
                 }`}
               >
-                <FiAward className={`mr-2 h-5 w-5 ${activeTab === "certifications" ? "text-indigo-500" : "text-gray-400"}`} />
+                <Award className={`mr-2 h-5 w-5 ${activeTab === "certifications" ? "text-indigo-500" : "text-gray-400"}`} />
                 Sertifikalar
               </button>
             </nav>
@@ -476,7 +477,7 @@ function ProfileContent() {
                       <div className="flex items-start">
                         <div className="flex-shrink-0">
                           <div className="p-2 bg-green-50 rounded-lg">
-                            <FiCheckCircle className="h-6 w-6 text-green-500" />
+                            <CheckCircle className="h-6 w-6 text-green-500" />
                           </div>
                         </div>
                         <div className="ml-4">

@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FiSearch, FiAward } from "react-icons/fi"
+import { Search, Award } from "lucide-react"
 
 export function PointsPageSkeleton() {
   return (
@@ -10,7 +10,7 @@ export function PointsPageSkeleton() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-blue-700">
-              <FiSearch className="mr-2" />
+              <Search className="mr-2" />
               Öğrenci Ara
             </CardTitle>
             <Skeleton className="h-4 w-48" />
@@ -45,7 +45,7 @@ export function PointsPageSkeleton() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-blue-700">
-              <FiAward className="mr-2" />
+              <Award className="mr-2" />
               Puan Ver
             </CardTitle>
             <Skeleton className="h-4 w-64" />

@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { FiAlertCircle, FiAward, FiClock, FiSearch } from "react-icons/fi";
+import { AlertCircle, Award, Clock, Search } from 'lucide-react';
 
 // Types
 type Student = {
@@ -69,7 +69,7 @@ function StudentListSkeleton() {
       <CardContent>
         <div className="space-y-2">
           <div className="relative">
-            <FiSearch className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+            <Search className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
             <Skeleton className="h-10 w-full" />
           </div>
           <div className="space-y-4 mt-4">
@@ -320,7 +320,7 @@ function PointsManagement() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-blue-700">
-              <FiSearch className="mr-2" />
+              <Search className="mr-2" />
               Öğrenci Ara
             </CardTitle>
             <CardDescription>
@@ -337,7 +337,7 @@ function PointsManagement() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10"
                 />
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
               
               <div className="space-y-2">
@@ -437,14 +437,14 @@ function PointsManagement() {
                         </>
                       ) : (
                         <>
-                          <FiAward className="mr-2" /> Puan Ver
+                          <Award className="mr-2" /> Puan Ver
                         </>
                       )}
                     </Button>
                   </form>
                 ) : (
                   <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
-                    <FiAlertCircle className="mx-auto mb-2 h-10 w-10 text-gray-400" />
+                    <AlertCircle className="mx-auto mb-2 h-10 w-10 text-gray-400" />
                     <p>Puan vermek için sol taraftan bir öğrenci seçin</p>
                   </div>
                 )}
@@ -491,7 +491,7 @@ function PointsManagement() {
                   </div>
                 ) : (
                   <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
-                    <FiClock className="mx-auto mb-2 h-10 w-10 text-gray-400" />
+                    <Clock className="mx-auto mb-2 h-10 w-10 text-gray-400" />
                     <p>Henüz hiç puan işlemi yok</p>
                   </div>
                 )}

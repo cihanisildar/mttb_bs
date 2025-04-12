@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FiArrowLeft, FiAward, FiSearch, FiUser, FiUserCheck } from 'react-icons/fi';
+import { ArrowLeft, Award, Search, User, UserCheck } from 'lucide-react';
 
 // Types
 type Student = {
@@ -170,7 +170,7 @@ export default function AwardPointsPage() {
           className="mr-2" 
           onClick={() => router.push('/tutor/points')}
         >
-          <FiArrowLeft className="mr-1" />
+          <ArrowLeft className="mr-1" />
         </Button>
         <h1 className="text-3xl font-bold text-gray-800">
           <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
@@ -185,7 +185,7 @@ export default function AwardPointsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center text-blue-700">
-                <FiUser className="mr-2" />
+                <User className="mr-2" />
                 Öğrenci Seç
               </CardTitle>
               <CardDescription>
@@ -202,7 +202,7 @@ export default function AwardPointsPage() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10"
                   />
-                  <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 </div>
                 
                 <div className="bg-gray-50 rounded-md p-2 max-h-[500px] overflow-y-auto">
@@ -257,7 +257,7 @@ export default function AwardPointsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center text-green-700">
-                <FiAward className="mr-2" />
+                <Award className="mr-2" />
                 {selectedStudent 
                   ? `${getStudentDisplayName(selectedStudent)} için Puan Ver` 
                   : 'Puan Verme Formu'}
@@ -274,7 +274,7 @@ export default function AwardPointsPage() {
                   <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-4">
                     <div className="flex items-center">
                       <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 mr-4">
-                        <FiUserCheck size={24} />
+                        <UserCheck size={24} />
                       </div>
                       <div>
                         <h3 className="font-medium text-blue-800">
@@ -350,7 +350,7 @@ export default function AwardPointsPage() {
                   <div className="pt-4">
                     {success ? (
                       <div className="bg-green-50 text-green-700 p-4 rounded-lg border border-green-200 text-center">
-                        <FiAward className="mx-auto h-8 w-8 text-green-500 mb-2" />
+                        <Award className="mx-auto h-8 w-8 text-green-500 mb-2" />
                         <p className="font-medium">Puan başarıyla verildi!</p>
                         <p className="text-sm text-green-600 mt-1">
                           {selectedStudent.username} kullanıcısına {points} puan verildi.
@@ -369,7 +369,7 @@ export default function AwardPointsPage() {
                           </>
                         ) : (
                           <>
-                            <FiAward className="mr-2" /> Puan Ver
+                            <Award className="mr-2" /> Puan Ver
                           </>
                         )}
                       </Button>
@@ -379,7 +379,7 @@ export default function AwardPointsPage() {
               ) : (
                 <div className="bg-gray-50 rounded-lg p-8 text-center">
                   <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 mx-auto mb-4">
-                    <FiUser size={32} />
+                    <User size={32} />
                   </div>
                   <h3 className="text-lg font-medium text-gray-700 mb-2">Öğrenci Seçilmedi</h3>
                   <p className="text-gray-500 max-w-md mx-auto">

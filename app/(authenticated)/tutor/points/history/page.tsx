@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FiArrowLeft, FiClock, FiDownload, FiFilter, FiSearch } from 'react-icons/fi';
+import { ArrowLeft, Clock, Download, Filter, Search } from 'lucide-react';
 
 // Types
 type Transaction = {
@@ -179,7 +179,7 @@ export default function PointsHistoryPage() {
             className="mr-2" 
             onClick={() => router.push('/tutor/points')}
           >
-            <FiArrowLeft className="mr-1" />
+            <ArrowLeft className="mr-1" />
           </Button>
           <h1 className="text-3xl font-bold text-gray-800">
             <span className="bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
@@ -192,7 +192,7 @@ export default function PointsHistoryPage() {
           onClick={exportAsCSV}
           className="mt-4 sm:mt-0 bg-teal-500 hover:bg-teal-600"
         >
-          <FiDownload className="mr-2" /> CSV İndir
+          <Download className="mr-2" /> CSV İndir
         </Button>
       </div>
       
@@ -200,7 +200,7 @@ export default function PointsHistoryPage() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center text-blue-700">
-            <FiFilter className="mr-2" />
+            <Filter className="mr-2" />
             Filtreler
           </CardTitle>
           <CardDescription>
@@ -219,7 +219,7 @@ export default function PointsHistoryPage() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10"
                 />
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
             </div>
             
@@ -264,7 +264,7 @@ export default function PointsHistoryPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center text-blue-700">
-            <FiClock className="mr-2" />
+            <Clock className="mr-2" />
             İşlem Geçmişi
           </CardTitle>
           <CardDescription>
@@ -310,7 +310,7 @@ export default function PointsHistoryPage() {
           ) : (
             <div className="text-center py-16 text-gray-500">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                <FiSearch className="h-8 w-8 text-gray-400" />
+                <Search className="h-8 w-8 text-gray-400" />
               </div>
               <h3 className="text-lg font-medium text-gray-700 mb-1">Sonuç Bulunamadı</h3>
               <p>

@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+module.exports = {
   /* config options here */
   webpack: (config) => {
     return config;
@@ -13,7 +13,5 @@ const nextConfig = {
       'images.unsplash.com',
       'localhost'
     ],
-  },
-};
-
-export default nextConfig; 
+  }
+} 

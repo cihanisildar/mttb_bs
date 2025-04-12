@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { FiUser, FiLock, FiBell, FiLayout, FiChevronRight } from "react-icons/fi";
+import { User, Lock, Bell, Layout, ChevronRight } from "lucide-react";
 
 export function SettingsSkeleton() {
   return (
@@ -16,10 +16,10 @@ export function SettingsSkeleton() {
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
             <nav className="space-y-1">
               {[
-                { icon: FiUser, label: "Profil Bilgileri" },
-                { icon: FiLock, label: "Güvenlik" },
-                { icon: FiBell, label: "Bildirimler" },
-                { icon: FiLayout, label: "Görünüm" }
+                { icon: User, label: "Profil Bilgileri" },
+                { icon: Lock, label: "Güvenlik" },
+                { icon: Bell, label: "Bildirimler" },
+                { icon: Layout, label: "Görünüm" }
               ].map((item, index) => (
                 <div
                   key={index}
@@ -29,7 +29,7 @@ export function SettingsSkeleton() {
                     <item.icon className="mr-3 h-5 w-5 text-gray-400" />
                     <Skeleton className="h-4 w-24" />
                   </div>
-                  <FiChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" />
                 </div>
               ))}
             </nav>

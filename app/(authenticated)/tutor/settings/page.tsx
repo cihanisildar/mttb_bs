@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { FiBell, FiChevronRight, FiLayout, FiLock, FiSave, FiUser, FiXCircle } from "react-icons/fi";
+import { Bell, ChevronRight, Layout, Lock, Save, User, XCircle } from 'lucide-react';
 
 // Static Header Component
 function SettingsHeader() {
@@ -117,7 +117,7 @@ function SettingsContent() {
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg shadow-sm flex justify-between items-center">
           <span>{successMessage}</span>
           <button onClick={() => setSuccessMessage("")} className="text-green-500 hover:text-green-700">
-            <FiXCircle size={20} />
+            <XCircle size={20} />
           </button>
         </div>
       )}
@@ -136,10 +136,10 @@ function SettingsContent() {
                 }`}
               >
                 <div className="flex items-center">
-                  <FiUser className={`mr-3 h-5 w-5 ${activeTab === "profile" ? "text-indigo-500" : "text-gray-400"}`} />
+                  <User className={`mr-3 h-5 w-5 ${activeTab === "profile" ? "text-indigo-500" : "text-gray-400"}`} />
                   <span className="font-medium">Profil Bilgileri</span>
                 </div>
-                <FiChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" />
               </button>
               
               <button
@@ -151,10 +151,10 @@ function SettingsContent() {
                 }`}
               >
                 <div className="flex items-center">
-                  <FiLock className={`mr-3 h-5 w-5 ${activeTab === "security" ? "text-indigo-500" : "text-gray-400"}`} />
+                  <Lock className={`mr-3 h-5 w-5 ${activeTab === "security" ? "text-indigo-500" : "text-gray-400"}`} />
                   <span className="font-medium">Güvenlik</span>
                 </div>
-                <FiChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" />
               </button>
               
               <button
@@ -166,10 +166,10 @@ function SettingsContent() {
                 }`}
               >
                 <div className="flex items-center">
-                  <FiBell className={`mr-3 h-5 w-5 ${activeTab === "notifications" ? "text-indigo-500" : "text-gray-400"}`} />
+                  <Bell className={`mr-3 h-5 w-5 ${activeTab === "notifications" ? "text-indigo-500" : "text-gray-400"}`} />
                   <span className="font-medium">Bildirimler</span>
                 </div>
-                <FiChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" />
               </button>
               
               <button
@@ -181,10 +181,10 @@ function SettingsContent() {
                 }`}
               >
                 <div className="flex items-center">
-                  <FiLayout className={`mr-3 h-5 w-5 ${activeTab === "appearance" ? "text-indigo-500" : "text-gray-400"}`} />
+                  <Layout className={`mr-3 h-5 w-5 ${activeTab === "appearance" ? "text-indigo-500" : "text-gray-400"}`} />
                   <span className="font-medium">Görünüm</span>
                 </div>
-                <FiChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" />
               </button>
             </nav>
           </div>
@@ -579,7 +579,7 @@ function SettingsContent() {
                   </>
                 ) : (
                   <>
-                    <FiSave className="mr-2" />
+                    <Save className="mr-2" />
                     Değişiklikleri Kaydet
                   </>
                 )}

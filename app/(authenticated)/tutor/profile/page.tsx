@@ -193,70 +193,41 @@ function ProfileContent() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        // In a real app, this would fetch from an API
-        // For demo purposes, we'll create mock data
-        const mockProfile: TutorProfile = {
-          id: user?.id || "profile-1",
-          username: user?.username || "john.doe",
-          email: user?.email || "john.doe@example.com",
-          firstName: user?.firstName || "John",
-          lastName: user?.lastName || "Doe",
-          phone: "+90 555 123 4567",
-          bio: "Öğrencilerin matematiksel düşünce ve problem çözme becerilerini geliştirmelerine yardımcı olmak için 5 yıllık deneyime sahibim. Matematiği sevdirmek ve öğretmek benim tutkum.",
-          profileImage: "https://randomuser.me/api/portraits/men/42.jpg",
-          specialization: "Matematik ve Fen Bilimleri",
-          joinDate: "2021-09-01",
-          subjects: ["Matematik", "Fizik", "Kimya"],
-          certifications: [
-            {
-              id: "cert-1",
-              name: "Eğitimde Teknoloji Kullanımı Sertifikası",
-              issuedBy: "Milli Eğitim Bakanlığı",
-              date: "2022-06-15",
-            },
-            {
-              id: "cert-2",
-              name: "İleri Matematik Öğretim Teknikleri",
-              issuedBy: "Eğitim Akademisi",
-              date: "2021-11-20",
-            },
-          ],
-          education: [
-            {
-              id: "edu-1",
-              institution: "İstanbul Üniversitesi",
-              degree: "Lisans",
-              fieldOfStudy: "Matematik Öğretmenliği",
-              from: "2013-09-01",
-              to: "2017-06-30",
-            },
-            {
-              id: "edu-2",
-              institution: "Ankara Üniversitesi",
-              degree: "Yüksek Lisans",
-              fieldOfStudy: "Eğitim Yönetimi",
-              from: "2017-09-01",
-              to: "2019-06-30",
-            },
-          ],
-          stats: {
-            studentsCount: 28,
-            eventsCount: 157,
-            pointsAwarded: 1250,
-            completedEvents: 142,
-          },
-        };
-        
-        setProfile(mockProfile);
-        setLoading(false);
+        setLoading(true);
+        const response = await fetch('/api/tutor/profile', {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile data');
+        }
+
+        const data = await response.json();
+        setProfile({
+          id: user?.id || "",
+          username: user?.username || "",
+          email: user?.email || "",
+          firstName: user?.firstName || "",
+          lastName: user?.lastName || "",
+          joinDate: user?.createdAt || new Date().toISOString(),
+          stats: data.stats || {
+            studentsCount: 0,
+            eventsCount: 0,
+            pointsAwarded: 0,
+            completedEvents: 0
+          }
+        });
       } catch (err) {
         console.error("Error fetching profile:", err);
         setError("Profil bilgileri yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchProfile();
+    if (user) {
+      fetchProfile();
+    }
   }, [user]);
 
   if (loading) {

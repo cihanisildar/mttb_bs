@@ -19,6 +19,13 @@ type AuthUser = {
   lastName?: string;
   points?: number;
   avatarUrl?: string;
+  tutor?: {
+    id: string;
+    username: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  createdAt?: string;
 };
 
 type AuthContextType = {

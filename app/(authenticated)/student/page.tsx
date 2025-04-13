@@ -3,7 +3,7 @@
 import { useAuth } from '@/app/contexts/AuthContext';
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowRight, Calendar, Clock, Star, Trophy } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, Star, Trophy, Settings, User } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -238,7 +238,25 @@ export default function StudentDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
-      <h1 className="text-2xl font-semibold mb-8 px-4 md:px-6 pt-6">Öğrenci Paneli</h1>
+      <div className="flex justify-between items-center mb-8 px-4 md:px-6 pt-6">
+        <h1 className="text-2xl font-semibold">Öğrenci Paneli</h1>
+        <div className="flex gap-2">
+          <Link
+            href="/student/settings"
+            className="px-4 py-2 bg-white text-indigo-600 rounded-lg shadow-sm hover:shadow-md transition-all border border-indigo-100 flex items-center gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            Ayarlar
+          </Link>
+          <Link
+            href="/student/profile"
+            className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2"
+          >
+            <User className="h-4 w-4" />
+            Profilim
+          </Link>
+        </div>
+      </div>
       
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-6 mb-8">

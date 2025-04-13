@@ -96,19 +96,58 @@ function SettingsContent() {
   const saveSettings = async () => {
     setSaving(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Show success message
-    toast.success("Ayarlarınız başarıyla kaydedildi.");
-    setSuccessMessage("Ayarlarınız başarıyla güncellendi.");
-    
-    // Clear success message after 3 seconds
-    setTimeout(() => {
-      setSuccessMessage("");
-    }, 3000);
-    
-    setSaving(false);
+    try {
+      // Handle password change if new password is provided
+      if (activeTab === "security" && securityForm.newPassword) {
+        if (securityForm.newPassword !== securityForm.confirmPassword) {
+          toast.error("Yeni şifreler eşleşmiyor");
+          return;
+        }
+
+        if (securityForm.newPassword.length < 8) {
+          toast.error("Şifre en az 8 karakter uzunluğunda olmalıdır");
+          return;
+        }
+
+        const passwordResponse = await fetch('/api/auth/password', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            currentPassword: securityForm.currentPassword,
+            newPassword: securityForm.newPassword
+          })
+        });
+
+        if (!passwordResponse.ok) {
+          const errorData = await passwordResponse.json();
+          throw new Error(errorData.error || 'Şifre güncellenirken bir hata oluştu');
+        }
+
+        // Clear password form
+        setSecurityForm({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: ""
+        });
+
+        toast.success("Şifreniz başarıyla güncellendi");
+      }
+
+      // Show success message
+      setSuccessMessage("Ayarlarınız başarıyla güncellendi.");
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000);
+    } catch (error: any) {
+      console.error('Settings update error:', error);
+      toast.error(error.message || 'Ayarlar güncellenirken bir hata oluştu');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

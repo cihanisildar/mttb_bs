@@ -77,6 +77,8 @@ export default function EditUserPage() {
           lastName: data.user.lastName || "",
           tutorId: data.user.tutorId || "",
           points: data.user.points || 0,
+          password: "",
+          confirmPassword: "",
         });
       } catch (err) {
         console.error("Kullanıcı bilgilerini alırken hata:", err);

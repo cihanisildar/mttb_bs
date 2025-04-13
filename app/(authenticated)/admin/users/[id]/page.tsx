@@ -6,6 +6,7 @@ import { UserRole } from "@prisma/client";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 type User = {
   id: string;
@@ -44,12 +45,16 @@ export default function EditUserPage() {
     lastName: "",
     tutorId: "",
     points: 0,
+    password: "",
+    confirmPassword: "",
   });
   const [formErrors, setFormErrors] = useState({
     username: "",
     email: "",
     role: "",
     tutorId: "",
+    password: "",
+    confirmPassword: "",
   });
 
   useEffect(() => {
@@ -135,6 +140,8 @@ export default function EditUserPage() {
       email: "",
       role: "",
       tutorId: "",
+      password: "",
+      confirmPassword: "",
     };
 
     let isValid = true;
@@ -162,6 +169,22 @@ export default function EditUserPage() {
       isValid = false;
     }
 
+    // Only validate password fields if either one is filled
+    if (formData.password || formData.confirmPassword) {
+      if (!formData.password) {
+        errors.password = "Şifre gereklidir";
+        isValid = false;
+      } else if (formData.password.length < 6) {
+        errors.password = "Şifre en az 6 karakter olmalıdır";
+        isValid = false;
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        errors.confirmPassword = "Şifreler eşleşmiyor";
+        isValid = false;
+      }
+    }
+
     setFormErrors(errors);
     return isValid;
   };
@@ -176,6 +199,7 @@ export default function EditUserPage() {
     try {
       setSaving(true);
 
+      // Update user info
       const response = await fetch(`/api/users/${userId}`, {
         method: "PUT",
         headers: {
@@ -200,12 +224,35 @@ export default function EditUserPage() {
         );
       }
 
+      // Update password if provided
+      if (formData.password) {
+        const passwordResponse = await fetch(`/api/users/${userId}/password`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            password: formData.password,
+          }),
+        });
+
+        if (!passwordResponse.ok) {
+          const errorData = await passwordResponse.json();
+          throw new Error(
+            errorData.error || "Şifre güncellenirken bir hata oluştu"
+          );
+        }
+      }
+
+      toast.success("Kullanıcı başarıyla güncellendi");
+
       // Navigate back to users list
       router.push("/admin/users");
       router.refresh();
     } catch (err: any) {
       console.error("Kullanıcı güncelleme hatası:", err);
       setError(err.message || "Kullanıcı güncellenirken bir hata oluştu");
+      toast.error(err.message || "Kullanıcı güncellenirken bir hata oluştu");
     } finally {
       setSaving(false);
     }
@@ -431,6 +478,58 @@ export default function EditUserPage() {
                 )}
               </div>
             )}
+
+            {/* Password */}
+            <div className="space-y-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Yeni Şifre
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className={`mt-1 block w-full border ${
+                  formErrors.password
+                    ? "border-red-300 ring-1 ring-red-300"
+                    : "border-gray-300"
+                } rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all`}
+                placeholder="Boş bırakırsanız şifre değişmez"
+              />
+              {formErrors.password && (
+                <p className="text-sm text-red-600">{formErrors.password}</p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Yeni Şifre Tekrar
+              </label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className={`mt-1 block w-full border ${
+                  formErrors.confirmPassword
+                    ? "border-red-300 ring-1 ring-red-300"
+                    : "border-gray-300"
+                } rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all`}
+                placeholder="Boş bırakırsanız şifre değişmez"
+              />
+              {formErrors.confirmPassword && (
+                <p className="text-sm text-red-600">{formErrors.confirmPassword}</p>
+              )}
+            </div>
           </div>
 
           {/* User info */}

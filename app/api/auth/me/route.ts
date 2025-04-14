@@ -25,6 +25,15 @@ export async function GET(request: NextRequest) {
         firstName: true,
         lastName: true,
         points: true,
+        tutorId: true,
+        tutor: {
+          select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true
+          }
+        }
       }
     });
 

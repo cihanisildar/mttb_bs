@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { UserRole, TransactionType } from '@prisma/client';
-import { isAdmin, isAuthenticated, isTutor } from '@/lib/auth';
-import { getUserFromRequest } from '@/lib/server-auth';
+import { getUserFromRequest, isAuthenticated, isAdmin, isTutor } from '@/lib/server-auth';
 
 // Update user points
 export async function POST(

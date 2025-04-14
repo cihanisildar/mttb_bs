@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
           username: user.username,
           email: user.email,
           role: user.role,
+          tutorId: user.tutorId
         }
       },
       { status: 200 }

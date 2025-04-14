@@ -18,7 +18,8 @@ interface LeaderboardEntry {
   username: string;
   firstName: string | null;
   lastName: string | null;
-  points: number;
+  currentPoints: number;
+  totalEarnedPoints: number;
   tutor: {
     id: string;
     username: string;
@@ -111,7 +112,7 @@ export default function AdminLeaderboardPage() {
   // Function to sort students
   const sortStudents = (students: LeaderboardEntry[], direction: 'asc' | 'desc') => {
     return [...students].sort((a, b) => {
-      return direction === 'desc' ? b.points - a.points : a.points - b.points;
+      return direction === 'desc' ? b.totalEarnedPoints - a.totalEarnedPoints : a.totalEarnedPoints - b.totalEarnedPoints;
     });
   };
 
@@ -150,7 +151,7 @@ export default function AdminLeaderboardPage() {
         entry.rank,
         entry.username,
         `${entry.firstName || ''} ${entry.lastName || ''}`.trim(),
-        entry.points,
+        entry.totalEarnedPoints,
         entry.tutor ? getDisplayName(entry.tutor) : ''
       ])
     ].map(row => row.join(',')).join('\n');
@@ -170,7 +171,7 @@ export default function AdminLeaderboardPage() {
   const calculateStats = () => {
     if (!filteredLeaderboard.length) return { avg: 0, max: 0, min: 0, median: 0 };
     
-    const sortedPoints = [...filteredLeaderboard].map(entry => entry.points).sort((a, b) => a - b);
+    const sortedPoints = [...filteredLeaderboard].map(entry => entry.totalEarnedPoints).sort((a, b) => a - b);
     const sum = sortedPoints.reduce((acc, points) => acc + points, 0);
     
     return {
@@ -198,7 +199,7 @@ export default function AdminLeaderboardPage() {
           };
         }
         tutorMap[tutorId].count += 1;
-        tutorMap[tutorId].totalPoints += entry.points;
+        tutorMap[tutorId].totalPoints += entry.totalEarnedPoints;
       }
     });
     
@@ -211,7 +212,7 @@ export default function AdminLeaderboardPage() {
     const rangeSize = 50;
     
     filteredLeaderboard.forEach(entry => {
-      const rangeStart = Math.floor(entry.points / rangeSize) * rangeSize;
+      const rangeStart = Math.floor(entry.totalEarnedPoints / rangeSize) * rangeSize;
       const rangeKey = `${rangeStart}-${rangeStart + rangeSize - 1}`;
       
       pointRanges[rangeKey] = (pointRanges[rangeKey] || 0) + 1;
@@ -593,9 +594,20 @@ export default function AdminLeaderboardPage() {
                           )}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-right">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                            {entry.points} puan
-                          </span>
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500 font-medium">Kazanılan:</span>
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm">
+                                {entry.totalEarnedPoints}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500 font-medium">Mevcut:</span>
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm">
+                                {entry.currentPoints}
+                              </span>
+                            </div>
+                          </div>
                         </td>
                       </tr>
                     );

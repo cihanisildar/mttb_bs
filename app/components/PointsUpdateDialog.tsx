@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
+import { useAuth } from '@/app/contexts/AuthContext'
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,7 @@ export default function PointsUpdateDialog({
   onPointsUpdated,
   triggerComponent 
 }: PointsUpdateDialogProps) {
+  const { checkAuth } = useAuth()
   const [open, setOpen] = useState(false)
   // Use string type for the input to allow clearing the field
   const [pointsInput, setPointsInput] = useState<string>('')
@@ -59,12 +61,11 @@ export default function PointsUpdateDialog({
         }),
       })
       
+      const data = await response.json()
+      
       if (!response.ok) {
-        const data = await response.json()
         throw new Error(data.error || 'Puanlar güncellenemedi')
       }
-      
-      const data = await response.json()
       
       toast.success('Puanlar başarıyla güncellendi')
       
@@ -76,6 +77,9 @@ export default function PointsUpdateDialog({
       if (onPointsUpdated) {
         onPointsUpdated(data.user.points)
       }
+
+      // Refresh auth context to update user data
+      await checkAuth()
     } catch (error: any) {
       toast.error(error.message || 'Puanlar güncellenemedi')
       console.error('Points update error:', error)

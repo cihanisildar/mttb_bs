@@ -10,7 +10,8 @@ export interface UserJwtPayload {
   username: string;
   email: string;
   role: UserRole;
-  [key: string]: string | UserRole;
+  tutorId?: string | null;
+  [key: string]: string | UserRole | null | undefined;
 }
 
 export async function verifyJWT(token: string): Promise<UserJwtPayload | null> {

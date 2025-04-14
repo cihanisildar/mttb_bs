@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const role = searchParams.get('role');
     const searchQuery = searchParams.get('q');
     const tutorId = searchParams.get('tutorId');
+    const assigned = searchParams.get('assigned') === 'true';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
 
@@ -38,6 +39,11 @@ export async function GET(request: NextRequest) {
     // If user is a tutor and requesting students, restrict to only their students
     if (isTutor(currentUser) && role === UserRole.STUDENT && !isAdmin(currentUser)) {
       where.tutorId = currentUser.id;
+    }
+    
+    // If assigned=true is specified, only show students with a tutorId
+    if (assigned && role === UserRole.STUDENT) {
+      where.tutorId = { not: null };
     }
     
     // Admin can see all users, but non-admins have restrictions

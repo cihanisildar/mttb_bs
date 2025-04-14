@@ -68,6 +68,9 @@ model User {
   tutorId       String?
   students      User[]    @relation("TutorStudents")
   
+  // Store relation
+  storeItems    StoreItem[] @relation("TutorStore")
+  
   // Classroom relations
   classroomAsTutor Classroom? @relation("ClassroomTutor")
   classroom     Classroom?  @relation("ClassroomStudents", fields: [classroomId], references: [id])
@@ -145,7 +148,11 @@ model StoreItem {
   updatedAt       DateTime  @updatedAt
 
   // Relations
+  tutor           User      @relation("TutorStore", fields: [tutorId], references: [id])
+  tutorId         String
   itemRequests    ItemRequest[]
+
+  @@unique([name, tutorId])  // Ensure item names are unique per tutor's store
 }
 
 model RegistrationRequest {

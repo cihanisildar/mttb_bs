@@ -3,6 +3,7 @@
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { RequestStatus } from '@prisma/client';
 // Import icons
 import { HeaderSkeleton } from '@/app/components/ui/skeleton-shimmer';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -36,7 +37,7 @@ type ItemRequest = {
     pointsRequired: number;
     availableQuantity: number;
   };
-  status: 'pending' | 'approved' | 'rejected';
+  status: RequestStatus;
   pointsSpent: number;
   note?: string;
   createdAt: string;
@@ -112,7 +113,7 @@ function LoadingRequests() {
 }
 
 export default function TutorRequests() {
-  const { isTutor } = useAuth();
+  const { isTutor, user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const statusFilter = searchParams.get('status') || 'all';
@@ -126,12 +127,13 @@ export default function TutorRequests() {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
+    console.log('Auth state:', { isTutor, userRole: user?.role });
     const fetchRequests = async () => {
       try {
         setLoading(true);
         let url = '/api/requests';
         if (statusFilter !== 'all') {
-          url += `?status=${statusFilter}`;
+          url += `?status=${statusFilter.toUpperCase()}`;
         }
         
         const res = await fetch(url);
@@ -141,6 +143,7 @@ export default function TutorRequests() {
         }
         
         const data = await res.json();
+        console.log('Fetched requests:', data.requests);
         setRequests(data.requests);
       } catch (err) {
         console.error('İstekleri getirme hatası:', err);
@@ -152,13 +155,16 @@ export default function TutorRequests() {
 
     if (isTutor) {
       fetchRequests();
+    } else {
+      console.warn('User is not a tutor');
+      setError('Bu sayfaya erişim yetkiniz yok.');
     }
   }, [isTutor, statusFilter]);
 
   const handleStatusChange = (status: string) => {
     const params = new URLSearchParams();
     if (status !== 'all') {
-      params.set('status', status);
+      params.set('status', status.toUpperCase());
     }
     router.push(`/tutor/requests?${params.toString()}`);
   };
@@ -185,7 +191,7 @@ export default function TutorRequests() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          status,
+          status: status === 'approved' ? RequestStatus.APPROVED : RequestStatus.REJECTED,
           ...(note && { note }),
         }),
       });
@@ -195,15 +201,18 @@ export default function TutorRequests() {
         throw new Error(errorData.error || 'İsteği işleme hatası');
       }
       
-      // Update the request in the UI
+      // Update the request in the UI with the correct enum value
       setRequests(requests.map(req => 
-        req.id === requestId ? { ...req, status } : req
+        req.id === requestId ? { ...req, status: status === 'approved' ? RequestStatus.APPROVED : RequestStatus.REJECTED } : req
       ));
       
       // If status filter is active, possibly remove from list
-      if (statusFilter !== 'all' && statusFilter !== status) {
+      if (statusFilter !== 'all' && statusFilter !== status.toUpperCase()) {
         setRequests(requests.filter(req => req.id !== requestId));
       }
+
+      // Refresh the dashboard data by reloading the page
+      router.refresh();
       
     } catch (err: any) {
       console.error('İsteği işleme hatası:', err);
@@ -237,7 +246,7 @@ export default function TutorRequests() {
   };
 
   const getStatusIcon = (status: string) => {
-    switch(status) {
+    switch(status.toLowerCase()) {
       case 'pending':
         return <Clock className="w-4 h-4 text-yellow-600" />;
       case 'approved':
@@ -250,7 +259,7 @@ export default function TutorRequests() {
   };
 
   const getStatusText = (status: string) => {
-    switch(status) {
+    switch(status.toLowerCase()) {
       case 'pending':
         return 'Beklemede';
       case 'approved':
@@ -299,7 +308,7 @@ export default function TutorRequests() {
             </button>
             <button
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ease-in-out flex items-center gap-1.5
-                ${statusFilter === 'pending' 
+                ${statusFilter.toLowerCase() === 'pending' 
                   ? 'bg-amber-500 text-white shadow-md ring-2 ring-amber-200' 
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => handleStatusChange('pending')}
@@ -308,7 +317,7 @@ export default function TutorRequests() {
             </button>
             <button
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ease-in-out flex items-center gap-1.5
-                ${statusFilter === 'approved' 
+                ${statusFilter.toLowerCase() === 'approved' 
                   ? 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-200' 
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => handleStatusChange('approved')}
@@ -317,7 +326,7 @@ export default function TutorRequests() {
             </button>
             <button
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ease-in-out flex items-center gap-1.5
-                ${statusFilter === 'rejected' 
+                ${statusFilter.toLowerCase() === 'rejected' 
                   ? 'bg-rose-600 text-white shadow-md ring-2 ring-rose-200' 
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => handleStatusChange('rejected')}
@@ -351,129 +360,94 @@ export default function TutorRequests() {
           </div>
         </div>
       ) : (
-        <div className="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-100">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <User className="w-3.5 h-3.5 mr-1.5" /> Öğrenci
+        <div className="grid grid-cols-1 gap-4">
+          {requests.map((request) => (
+            <div key={request.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-semibold text-sm uppercase">
+                    {getStudentName(request.student).charAt(0)}
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-sm font-medium text-gray-900">
+                      {getStudentName(request.student)}
                     </div>
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <Gift className="w-3.5 h-3.5 mr-1.5" /> Ödül
+                    <div className="text-sm text-gray-500">
+                      @{request.student.username}
                     </div>
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <Award className="w-3.5 h-3.5 mr-1.5" /> Puanlar
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Durum
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      <Calendar className="w-3.5 h-3.5 mr-1.5" /> Tarih
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    İşlemler
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {requests.map((request) => (
-                  <tr key={request.id} className="hover:bg-gray-50 transition-colors duration-150">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-9 w-9 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-semibold text-sm uppercase">
-                          {getStudentName(request.student).charAt(0)}
-                        </div>
-                        <div className="ml-3">
-                          <div className="font-medium text-gray-900">
-                            {getStudentName(request.student)}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            @{request.student.username}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900 mb-1">
-                        {request.item.name}
-                      </div>
-                      <div className="text-sm text-gray-500 line-clamp-2 max-w-xs">
-                        {request.item.description}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-indigo-50 text-indigo-700">
-                        <Award className="w-3.5 h-3.5 mr-1" />
-                        {request.pointsSpent} puan
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full items-center w-fit
-                          ${request.status === 'pending' ? 'bg-amber-100 text-amber-800' : 
-                            request.status === 'approved' ? 'bg-emerald-100 text-emerald-800' : 
-                              'bg-rose-100 text-rose-800'}`}>
-                          {getStatusIcon(request.status)}
-                          <span className="ml-1.5">{getStatusText(request.status)}</span>
-                        </span>
-                        {request.note && (
-                          <div className="text-xs text-gray-500 mt-2 bg-gray-50 p-2 rounded border border-gray-200">
-                            <span className="font-medium">Not:</span> {request.note}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      <div className="flex items-center">
-                        <Calendar className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
-                        {formatDate(request.createdAt)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">
-                      {request.status === 'pending' ? (
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => processRequest(request.id, 'approved')}
-                            disabled={processingId === request.id}
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm 
-                            text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-150
-                            disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
-                            {processingId === request.id ? 'İşleniyor...' : 'Onayla'}
-                          </button>
-                          <button
-                            onClick={() => openRejectModal(request.id)}
-                            disabled={processingId === request.id}
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm 
-                            text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors duration-150
-                            disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <XCircle className="w-3.5 h-3.5 mr-1.5" />
-                            Reddet
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="inline-flex items-center text-gray-500 bg-gray-100 px-3 py-1.5 rounded-md">
-                          <CheckSquare className="w-3.5 h-3.5 mr-1.5" />
-                          İşlendi
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-indigo-50 text-indigo-700">
+                    <Award className="w-3.5 h-3.5 mr-1" />
+                    {request.pointsSpent} puan
+                  </div>
+                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full items-center
+                    ${request.status.toLowerCase() === 'pending' ? 'bg-amber-100 text-amber-800' : 
+                      request.status.toLowerCase() === 'approved' ? 'bg-emerald-100 text-emerald-800' : 
+                        'bg-rose-100 text-rose-800'}`}>
+                    {getStatusIcon(request.status)}
+                    <span className="ml-1.5">{getStatusText(request.status)}</span>
+                  </span>
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <div className="font-medium text-gray-900 mb-1">
+                  {request.item.name}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {request.item.description}
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-sm text-gray-500">
+                  <Calendar className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
+                  {formatDate(request.createdAt)}
+                </div>
+                
+                <div className="flex space-x-2">
+                  {request.status.toLowerCase() === 'pending' && (
+                    <>
+                      <button
+                        onClick={() => processRequest(request.id, 'approved')}
+                        disabled={processingId === request.id}
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm 
+                        text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-150
+                        disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
+                        {processingId === request.id ? 'İşleniyor...' : 'Onayla'}
+                      </button>
+                      <button
+                        onClick={() => openRejectModal(request.id)}
+                        disabled={processingId === request.id}
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm 
+                        text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors duration-150
+                        disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <XCircle className="w-3.5 h-3.5 mr-1.5" />
+                        Reddet
+                      </button>
+                    </>
+                  )}
+                  {request.status.toLowerCase() !== 'pending' && (
+                    <span className="inline-flex items-center text-gray-500 bg-gray-100 px-3 py-1.5 rounded-md">
+                      <CheckSquare className="w-3.5 h-3.5 mr-1.5" />
+                      İşlendi
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              {request.note && (
+                <div className="mt-4 text-xs text-gray-500 bg-gray-50 p-2 rounded border border-gray-200">
+                  <span className="font-medium">Not:</span> {request.note}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
       

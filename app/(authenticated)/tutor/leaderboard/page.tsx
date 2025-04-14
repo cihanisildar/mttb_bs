@@ -28,7 +28,8 @@ interface Student {
   username: string;
   firstName: string | null;
   lastName: string | null;
-  points: number;
+  currentPoints: number;
+  totalEarnedPoints: number;
   rank: number;
 }
 
@@ -85,7 +86,7 @@ function LeaderboardContent({ leaderboardData, tutorStudents }: LeaderboardConte
       ? Math.round(myStudentsLeaderboard.reduce((sum: number, student: any) => sum + student.rank, 0) / myStudentsLeaderboard.length) 
       : 0,
     avgPoints: myStudentsLeaderboard.length > 0 
-      ? Math.round(myStudentsLeaderboard.reduce((sum: number, student: any) => sum + student.points, 0) / myStudentsLeaderboard.length) 
+      ? Math.round(myStudentsLeaderboard.reduce((sum: number, student: any) => sum + student.totalEarnedPoints, 0) / myStudentsLeaderboard.length) 
       : 0,
     topRank: myStudentsLeaderboard.length > 0 
       ? Math.min(...myStudentsLeaderboard.map((student: any) => student.rank)) 
@@ -230,9 +231,20 @@ function LeaderboardContent({ leaderboardData, tutorStudents }: LeaderboardConte
                             </div>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-right">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                              {student.points} puan
-                            </span>
+                            <div className="flex flex-col items-end gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 font-medium">Kazanılan:</span>
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm">
+                                  {student.totalEarnedPoints}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 font-medium">Mevcut:</span>
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm">
+                                  {student.currentPoints}
+                                </span>
+                              </div>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -308,9 +320,20 @@ function LeaderboardContent({ leaderboardData, tutorStudents }: LeaderboardConte
                           </div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-right">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                            {student.points} puan
-                          </span>
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500 font-medium">Kazanılan:</span>
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm">
+                                {student.totalEarnedPoints}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500 font-medium">Mevcut:</span>
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm">
+                                {student.currentPoints}
+                              </span>
+                            </div>
+                          </div>
                         </td>
                       </tr>
                     ))}

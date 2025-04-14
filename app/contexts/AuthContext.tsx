@@ -187,7 +187,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (!res.ok) {
         const errorData = await res.json();
-        toast.error(errorData.error || "Login failed");
+        toast.error(errorData.error || "Giriş başarısız. Lütfen tekrar deneyin.");
         return;
       }
 
@@ -205,7 +205,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Login failed. Please try again.");
+      toast.error("Giriş başarısız. Lütfen tekrar deneyin.");
     } finally {
       setLoading(false);
     }

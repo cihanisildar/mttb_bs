@@ -22,7 +22,7 @@ type Transaction = {
     lastName?: string;
   };
   points: number;
-  type: string;
+  type: "AWARD" | "REDEEM";
   reason: string;
   createdAt: string;
 };
@@ -289,8 +289,12 @@ export default function PointsHistoryPage() {
                         <h3 className="font-medium text-gray-900">
                           {getStudentName(transaction.student)}
                         </h3>
-                        <Badge className="bg-green-100 text-green-800 border-green-200">
-                          +{transaction.points} puan
+                        <Badge className={`${
+                          transaction.type === 'AWARD' 
+                            ? 'bg-green-100 text-green-800 border-green-200'
+                            : 'bg-red-100 text-red-800 border-red-200'
+                        }`}>
+                          {transaction.type === 'AWARD' ? '+' : '-'}{Math.abs(transaction.points)} puan
                         </Badge>
                       </div>
                       <p className="text-sm text-gray-500 mt-1">

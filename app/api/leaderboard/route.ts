@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { UserRole } from '@prisma/client';
-import { isAuthenticated, getUserFromRequest } from '@/lib/server-auth';
+import { UserRole, TransactionType } from '@prisma/client';
+import { getUserFromRequest, isAuthenticated } from '@/lib/server-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get all students sorted by points
+    // Get all students with their current points and transactions
     const students = await prisma.user.findMany({
       where: { 
         role: UserRole.STUDENT 
@@ -26,33 +26,50 @@ export async function GET(request: NextRequest) {
         username: true,
         firstName: true,
         lastName: true,
-        points: true
+        points: true,
+        pointsReceived: {
+          where: {
+            type: TransactionType.AWARD
+          },
+          select: {
+            points: true
+          }
+        }
       },
       orderBy: {
         points: 'desc'
       }
     });
 
-    // Map students to leaderboard entries with ranks
-    const leaderboard = students.map((student, index) => ({
-      id: student.id,
-      username: student.username,
-      firstName: student.firstName,
-      lastName: student.lastName,
-      points: student.points || 0,
-      rank: index + 1
-    }));
+    // Calculate total earned points and map students to leaderboard entries with ranks
+    const leaderboard = students.map((student, index) => {
+      const totalEarnedPoints = student.pointsReceived.reduce((sum, tx) => sum + tx.points, 0);
+      return {
+        id: student.id,
+        username: student.username,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        currentPoints: student.points || 0,
+        totalEarnedPoints,
+        rank: index + 1
+      };
+    });
+
+    // Sort by total earned points for the leaderboard
+    const sortedLeaderboard = [...leaderboard].sort((a, b) => b.totalEarnedPoints - a.totalEarnedPoints)
+      .map((entry, index) => ({ ...entry, rank: index + 1 }));
 
     // Find current user's rank if they are a student
     const userRank = currentUser.role === UserRole.STUDENT
-      ? leaderboard.find(entry => entry.id === currentUser.id)
+      ? sortedLeaderboard.find(entry => entry.id === currentUser.id)
       : null;
 
     return NextResponse.json({
-      leaderboard: leaderboard.slice(0, 25), // Return top 25 students
+      leaderboard: sortedLeaderboard.slice(0, 25), // Return top 25 students
       userRank: userRank ? {
         rank: userRank.rank,
-        points: userRank.points
+        currentPoints: userRank.currentPoints,
+        totalEarnedPoints: userRank.totalEarnedPoints
       } : null,
       total: students.length
     }, { status: 200 });

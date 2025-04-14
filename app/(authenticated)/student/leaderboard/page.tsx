@@ -22,13 +22,15 @@ interface LeaderboardEntry {
   username: string;
   firstName: string | null;
   lastName: string | null;
-  points: number;
+  currentPoints: number;
+  totalEarnedPoints: number;
   rank: number;
 }
 
 interface UserRanking {
   rank: number;
-  points: number;
+  currentPoints: number;
+  totalEarnedPoints: number;
 }
 
 function HeaderSkeleton() {
@@ -220,9 +222,14 @@ export default function StudentLeaderboardPage() {
                     <h3 className="text-lg font-semibold text-gray-900">
                       {user?.firstName} {user?.lastName}
                     </h3>
-                    <p className="text-gray-600">
-                      Toplam <span className="font-medium">{userRank.points}</span> puan
-                    </p>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-gray-600">
+                        Toplam <span className="font-medium">{userRank.totalEarnedPoints}</span> puan kazandınız
+                      </p>
+                      <p className="text-gray-600">
+                        Mevcut <span className="font-medium">{userRank.currentPoints}</span> puanınız var
+                      </p>
+                    </div>
                   </div>
                 </div>
                 
@@ -316,9 +323,20 @@ export default function StudentLeaderboardPage() {
                           </div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-right">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                            {student.points} puan
-                          </span>
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500 font-medium">Kazanılan:</span>
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm">
+                                {student.totalEarnedPoints}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500 font-medium">Mevcut:</span>
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm">
+                                {student.currentPoints}
+                              </span>
+                            </div>
+                          </div>
                         </td>
                       </tr>
                     );

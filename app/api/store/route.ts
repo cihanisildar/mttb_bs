@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { isAdmin, isAuthenticated, isTutor } from '@/lib/server-auth';
-import { getUserFromRequest } from '@/lib/server-auth';
+import { getUserFromRequest, isAuthenticated, isAdmin, isTutor } from '@/lib/server-auth';
 
 // Default empty response
 const EMPTY_RESPONSE = { items: [] };
@@ -29,73 +28,123 @@ async function withRetry<T>(operation: () => Promise<T>, maxRetries = 3): Promis
 
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication first - fail fast if not authenticated
     const currentUser = await getUserFromRequest(request);
+    console.log('Store API - Current user details:', {
+      id: currentUser?.id,
+      username: currentUser?.username,
+      role: currentUser?.role,
+      tutorId: currentUser?.tutorId,
+      hasUser: !!currentUser
+    });
     
     if (!isAuthenticated(currentUser)) {
+      console.log('Store API - User not authenticated');
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    // Add more debug info about the user
-    console.log('User accessing store API:', {
-      id: currentUser.id,
-      username: currentUser.username,
-      role: currentUser.role,
-      isAdmin: isAdmin(currentUser),
-      isTutor: isTutor(currentUser)
+    // Get tutorId from query params
+    const { searchParams } = new URL(request.url);
+    const tutorId = searchParams.get('tutorId');
+    console.log('Store API - Request details:', {
+      url: request.url,
+      tutorId,
+      isStudent: !isTutor(currentUser),
+      userTutorId: currentUser.tutorId
     });
 
-    // Try database operations with retry mechanism
-    try {
-      const items = await withRetry(async () => {
-        return prisma.storeItem.findMany({
-          orderBy: {
-            pointsRequired: 'asc'
-          }
-        });
-      });
-
-      return NextResponse.json({ items }, { status: 200 });
-    } catch (dbError: any) {
-      // Log database specific error
-      console.error('Database error in store items:', dbError);
-      
-      // More detailed error logging for diagnosis
-      console.error('DB Error details:', {
-        message: dbError.message,
-        stack: dbError.stack,
-        name: dbError.name,
-        code: dbError.code
-      });
-      
-      // Return a more specific error message
-      return NextResponse.json(
-        { 
-          error: 'Database connection error',
-          details: process.env.NODE_ENV === 'development' ? dbError.message : undefined,
-          items: [] // Return empty array to allow client to handle gracefully
+    // If admin, show all items or filter by tutorId
+    if (isAdmin(currentUser)) {
+      console.log('Store API - Admin user, fetching all items');
+      const items = await prisma.storeItem.findMany({
+        where: tutorId ? {
+          tutorId: tutorId
+        } : undefined,
+        orderBy: {
+          createdAt: 'desc'
         },
-        { status: 503 } // Service Unavailable is better than 500 for DB connection issues
-      );
+        include: {
+          tutor: {
+            select: {
+              id: true,
+              username: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
+      });
+
+      return NextResponse.json({ items });
     }
-  } catch (error: any) {
-    // General error handling with more details
-    console.error('Get store items error:', error);
-    console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
-    
-    return NextResponse.json(
-      { 
-        error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-        items: [] // Return empty array
+
+    // If user is a student, only show their tutor's store
+    if (!isTutor(currentUser)) {
+      console.log('Store API - Student user check:', {
+        hasCurrentUser: !!currentUser,
+        userRole: currentUser?.role,
+        tutorId: currentUser?.tutorId,
+        isStudent: !isTutor(currentUser)
+      });
+      
+      if (!currentUser.tutorId) {
+        console.log('Store API - No tutor assigned to student');
+        return NextResponse.json(
+          { error: 'No tutor assigned' },
+          { status: 400 }
+        );
+      }
+
+      console.log('Store API - Fetching items for student with tutorId:', currentUser.tutorId);
+      const items = await prisma.storeItem.findMany({
+        where: {
+          tutorId: currentUser.tutorId
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        include: {
+          tutor: {
+            select: {
+              id: true,
+              username: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
+      });
+
+      return NextResponse.json({ items });
+    }
+
+    // For tutors, show their own store
+    const items = await prisma.storeItem.findMany({
+      where: {
+        tutorId: currentUser.id
       },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      include: {
+        tutor: {
+          select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true
+          }
+        }
+      }
+    });
+
+    return NextResponse.json({ items });
+  } catch (error) {
+    console.error('Fetch store items error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -105,16 +154,17 @@ export async function POST(request: NextRequest) {
   try {
     const currentUser = await getUserFromRequest(request);
     
-    if (!isAuthenticated(currentUser) || !isAdmin(currentUser)) {
+    if (!isAuthenticated(currentUser) || (!isAdmin(currentUser) && !isTutor(currentUser))) {
       return NextResponse.json(
-        { error: 'Unauthorized: Only admin can create store items' },
+        { error: 'Unauthorized: Only admin or tutor can create store items' },
         { status: 403 }
       );
     }
 
     const body = await request.json();
-    const { name, description, pointsRequired, availableQuantity, imageUrl } = body;
+    const { name, description, pointsRequired, availableQuantity, imageUrl, tutorId } = body;
 
+    // Validate required fields
     if (!name || !description || !pointsRequired || availableQuantity === undefined) {
       return NextResponse.json(
         { error: 'Name, description, pointsRequired, and availableQuantity are required' },
@@ -122,6 +172,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate numeric fields
     if (pointsRequired <= 0) {
       return NextResponse.json(
         { error: 'Points required must be greater than 0' },
@@ -136,17 +187,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // If admin is creating item for a tutor, validate tutorId
+    if (isAdmin(currentUser) && tutorId) {
+      const tutor = await prisma.user.findFirst({
+        where: {
+          id: tutorId,
+          role: 'TUTOR'
+        }
+      });
+
+      if (!tutor) {
+        return NextResponse.json(
+          { error: 'Invalid tutor ID' },
+          { status: 400 }
+        );
+      }
+    }
+
     try {
-      const newItem = await withRetry(async () => {
-        return prisma.storeItem.create({
-          data: {
-            name,
-            description,
-            pointsRequired,
-            availableQuantity,
-            ...(imageUrl && { imageUrl })
+      const newItem = await prisma.storeItem.create({
+        data: {
+          name,
+          description,
+          pointsRequired,
+          availableQuantity,
+          ...(imageUrl && { imageUrl }),
+          tutorId: isAdmin(currentUser) ? tutorId : currentUser.id
+        },
+        include: {
+          tutor: {
+            select: {
+              id: true,
+              username: true,
+              firstName: true,
+              lastName: true
+            }
           }
-        });
+        }
       });
 
       return NextResponse.json(
@@ -158,41 +235,20 @@ export async function POST(request: NextRequest) {
       );
     } catch (dbError: any) {
       console.error('Database error creating store item:', dbError);
-      console.error('DB Error details:', {
-        message: dbError.message,
-        stack: dbError.stack,
-        name: dbError.name,
-        code: dbError.code
-      });
       
       if (dbError.code === 'P2002') {
         return NextResponse.json(
-          { error: 'A store item with this name already exists' },
+          { error: 'An item with this name already exists in this tutor\'s store' },
           { status: 409 }
         );
       }
       
-      return NextResponse.json(
-        { 
-          error: 'Database connection error',
-          details: process.env.NODE_ENV === 'development' ? dbError.message : undefined
-        },
-        { status: 503 }
-      );
+      throw dbError;
     }
   } catch (error: any) {
     console.error('Create store item error:', error);
-    console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
-    
     return NextResponse.json(
-      { 
-        error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

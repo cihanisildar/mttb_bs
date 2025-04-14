@@ -47,16 +47,16 @@ export default function UnauthorizedPage() {
                   d="M12 15v2m0 0v2m0-2h2m-2 0H9m3-4V3m0 0l-3 3m3-3l3 3"
                 />
               </svg>
-              <h3 className="mt-2 text-lg font-medium text-gray-900">Unauthorized Access</h3>
+              <h3 className="mt-2 text-lg font-medium text-gray-900">Yetkisiz Erişim</h3>
               <p className="mt-1 text-sm text-gray-500">
-                Your account does not have the necessary permissions to view this page.
+                Hesabınızın bu sayfayı görüntülemek için gerekli izinleri bulunmamaktadır.
               </p>
               <div className="mt-6">
                 <Link
                   href={dashboardLink}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white hover:text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  Return to Dashboard
+                  Panele Geri Dön
                 </Link>
               </div>
             </div>
@@ -65,7 +65,7 @@ export default function UnauthorizedPage() {
         
         <div className="mt-4">
           <p className="text-sm text-gray-500">
-            If you believe this is an error, please contact the system administrator.
+            Bunun bir hata olduğunu düşünüyorsanız, lütfen sistem yöneticisiyle iletişime geçin.
           </p>
         </div>
       </div>

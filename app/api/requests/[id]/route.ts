@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { RequestStatus, TransactionType } from '@prisma/client';
-import { isAdmin, isAuthenticated, isTutor } from '@/lib/auth';
-import { getUserFromRequest } from '@/lib/server-auth';
+import { getUserFromRequest, isAuthenticated, isAdmin, isTutor } from '@/lib/server-auth';
 
 // Get a specific request by ID
 export async function GET(
@@ -92,14 +91,16 @@ export async function PUT(
     const requestId = params.id;
     const body = await request.json();
     const { status, note } = body;
-    
-    if (!status || !Object.values(RequestStatus).includes(status as RequestStatus)) {
+
+    // Validate that status is one of the enum values
+    const validStatuses = Object.values(RequestStatus);
+    if (!status || !validStatuses.includes(status)) {
       return NextResponse.json(
-        { error: 'Valid status is required' },
+        { error: `Valid status is required. Must be one of: ${validStatuses.join(', ')}` },
         { status: 400 }
       );
     }
-    
+
     // Only allow APPROVED or REJECTED status
     if (status === RequestStatus.PENDING) {
       return NextResponse.json(
@@ -121,6 +122,15 @@ export async function PUT(
 
       if (!itemRequest) {
         throw new Error('Request not found');
+      }
+
+      // Validate all required relationships exist
+      if (!itemRequest.student || !itemRequest.item) {
+        throw new Error('Invalid request: missing required relationships');
+      }
+
+      if (!itemRequest.tutorId) {
+        throw new Error('Invalid request: missing tutor assignment');
       }
 
       // Check if request is already processed
@@ -213,6 +223,12 @@ export async function PUT(
     }, { status: 200 });
   } catch (error: any) {
     console.error('Update request error:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      code: error.code
+    });
 
     if (error.message === 'Request not found') {
       return NextResponse.json(
@@ -243,6 +259,14 @@ export async function PUT(
     }
 
     if (error.message === 'Student no longer has enough points') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      );
+    }
+
+    if (error.message === 'Invalid request: missing required relationships' ||
+        error.message === 'Invalid request: missing tutor assignment') {
       return NextResponse.json(
         { error: error.message },
         { status: 400 }

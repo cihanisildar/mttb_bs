@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/contexts/AuthContext';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 type StoreItem = {
   id: string;
@@ -57,6 +56,7 @@ export default function StudentStore() {
         // Add cache-busting and timeout
         const res = await fetch(`/api/store?t=${new Date().getTime()}`, {
           signal: AbortSignal.timeout(15000),
+          credentials: 'include',
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache'

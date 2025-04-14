@@ -8,25 +8,34 @@ export async function GET(request: NextRequest) {
   try {
     const currentUser = await getUserFromRequest(request);
     
-    if (!isAuthenticated(currentUser) || !isTutor(currentUser)) {
+    if (!isAuthenticated(currentUser)) {
       return NextResponse.json(
-        { error: 'Unauthorized: Only tutors can access this endpoint' },
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    if (!isTutor(currentUser)) {
+      return NextResponse.json(
+        { error: 'Only tutors can access their store items' },
         { status: 403 }
       );
     }
 
-    // Fetch all store items from the database
     const items = await prisma.storeItem.findMany({
+      where: {
+        tutorId: currentUser.id
+      },
       orderBy: {
-        pointsRequired: 'asc'
+        createdAt: 'desc'
       }
     });
 
-    return NextResponse.json({ items }, { status: 200 });
-  } catch (error: any) {
-    console.error('Error fetching store items:', error);
+    return NextResponse.json({ items });
+  } catch (error) {
+    console.error('Fetch tutor store items error:', error);
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

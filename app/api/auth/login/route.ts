@@ -11,19 +11,29 @@ export async function POST(request: NextRequest) {
 
     if (!username || !password) {
       return NextResponse.json(
-        { error: 'Username and password are required' },
+        { error: 'Kullanıcı adı ve şifre gereklidir' },
         { status: 400 }
       );
     }
 
     // Find user by username
     const user = await prisma.user.findUnique({
-      where: { username }
+      where: { username },
+      include: {
+        tutor: {
+          select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true
+          }
+        }
+      }
     });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Invalid username or password' },
+        { error: 'Geçersiz kullanıcı adı veya şifre' },
         { status: 401 }
       );
     }
@@ -32,7 +42,7 @@ export async function POST(request: NextRequest) {
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return NextResponse.json(
-        { error: 'Invalid username or password' },
+        { error: 'Geçersiz kullanıcı adı veya şifre' },
         { status: 401 }
       );
     }
@@ -42,6 +52,7 @@ export async function POST(request: NextRequest) {
       username: user.username,
       email: user.email,
       role: user.role,
+      tutorId: user.tutorId
     };
 
     const { token, refreshToken } = await signJWT(payload);
@@ -54,6 +65,8 @@ export async function POST(request: NextRequest) {
           username: user.username,
           email: user.email,
           role: user.role,
+          tutorId: user.tutorId,
+          tutor: user.tutor
         }
       },
       { status: 200 }
@@ -63,7 +76,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Sunucu hatası' },
       { status: 500 }
     );
   }

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getUserFromRequest } from './lib/server-auth';
+import { getUserFromRequest, isAdmin } from './lib/server-auth';
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -35,6 +35,18 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
+    // Check admin routes
+    if ((pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) && !isAdmin(user)) {
+      console.log('Non-admin user attempting to access admin route:', pathname);
+      const response = NextResponse.json(
+        { error: 'Unauthorized: Only admin can access this endpoint' },
+        { status: 403 }
+      );
+      response.headers.set('x-middleware-cache', 'no-cache');
+      response.headers.set('Cache-Control', 'no-store, must-revalidate');
+      return response;
+    }
+
     const response = NextResponse.next();
     // Add user info to headers for debugging
     response.headers.set('x-user-role', user.role);
@@ -62,6 +74,7 @@ export const config = {
      * - favicon.ico (favicon file)
      * - api/auth (auth endpoints)
      */
-    '/((?!_next/static|_next/image|favicon.ico|api/auth).*)'
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/api/:path*'
   ],
 }; 

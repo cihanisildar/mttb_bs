@@ -18,7 +18,7 @@ interface TutorStats {
 
 interface RecentTransaction {
   id: string;
-  type: "award" | "deduct";
+  type: "AWARD" | "REDEEM";
   points: number;
   reason: string;
   createdAt: string;
@@ -29,16 +29,16 @@ interface RecentTransaction {
 }
 
 async function fetchDashboardData() {
-        // Get students
-        const studentsRes = await fetch("/api/users?role=student");
+        // Get students - use tutor students endpoint
+        const studentsRes = await fetch("/api/tutor/students");
         const studentsData = await studentsRes.json();
 
         // Get events created by this tutor
         const eventsRes = await fetch("/api/events");
         const eventsData = await eventsRes.json();
 
-        // Get pending requests
-        const requestsRes = await fetch("/api/requests?status=pending");
+        // Get pending requests - explicitly request PENDING status
+        const requestsRes = await fetch("/api/requests?status=PENDING");
         const requestsData = await requestsRes.json();
 
         // Get recent points transactions
@@ -49,7 +49,7 @@ async function fetchDashboardData() {
         const totalPoints =
           transactionsData.transactions?.reduce(
             (total: number, transaction: any) => {
-              return transaction.type === "award"
+              return transaction.type === "AWARD"
                 ? total + transaction.points
                 : total;
             },
@@ -58,7 +58,7 @@ async function fetchDashboardData() {
 
   return {
     stats: {
-          totalStudents: studentsData.users?.length || 0,
+          totalStudents: studentsData.students?.length || 0,
           totalEvents: eventsData.events?.length || 0,
           totalPointsAwarded: totalPoints,
           pendingRequests: requestsData.requests?.length || 0,
@@ -346,8 +346,8 @@ function DashboardStats() {
                   Verilen Puanlar
                 </p>
                 <div className="flex items-center">
-                  <p className="text-3xl font-bold text-gray-900">
-                    {stats.totalPointsAwarded}
+                  <p className="text-3xl font-bold text-green-600">
+                    +{stats.totalPointsAwarded}
                   </p>
                 </div>
               </div>
@@ -472,7 +472,7 @@ function RecentTransactions() {
                 <div
                   key={transaction.id}
                   className={`rounded-lg p-4 ${
-                    transaction.type === "award"
+                    transaction.type === "AWARD"
                       ? "bg-green-50 border border-green-100"
                       : "bg-red-50 border border-red-100"
                   }`}
@@ -484,13 +484,13 @@ function RecentTransactions() {
                     </div>
                     <div
                       className={`font-bold ${
-                        transaction.type === "award"
+                        transaction.type === "AWARD"
                           ? "text-green-600"
                           : "text-red-600"
                       }`}
                     >
-                      {transaction.type === "award" ? "+" : "-"}
-                      {transaction.points} puan
+                      {transaction.type === "AWARD" ? "+" : "-"}
+                      {Math.abs(transaction.points)} puan
                     </div>
                   </div>
                   <div className="text-sm text-gray-600 mt-1">
